@@ -1,0 +1,40 @@
+---
+title: "p8105_hw5_map2365"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+*function that checks for duplicate birthdays*
+```{r}
+simulate_birthdays <- function(group_size) {
+birthdays <- sample(1:365, group_size, replace = TRUE)
+any(duplicated(birthdays))
+}
+```
+*running the simulation for group sizes between 2 and 50. Note, I set the seed for reproducibility purposes.*
+```{r}
+set.seed(1123)
+group_sizes <- 2:50
+n_simulations <- 10000
+
+probabilities <- numeric(length(group_sizes))
+
+for (i in seq_along(group_sizes)) {
+  group_size <- group_sizes[i]
+  results <- replicate(n_simulations, simulate_birthdays(group_size))
+  probabilities[i] <- mean(results)
+}
+```
+
+*ploting the results*
+```{r}
+plot(group_sizes, probabilities, type = "b", 
+     xlab = "Group Size (n)", 
+     ylab = "Probability of Shared Birthday",
+     main = "Probability of At Least Two People Sharing a Birthday",
+     pch = 19, col = "blue")
+```
+*based on the plot, we can see that the probability of two people sharing a birthday increases as the size of the group increases. Infact, when the group size reaches 50, there is nearly the probability of 2 people sharing a birthday is nearly 100%*
+
