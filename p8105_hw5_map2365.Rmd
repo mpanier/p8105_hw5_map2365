@@ -193,6 +193,6 @@ ggplot2::ggplot(city_props, ggplot2::aes(x = reorder(city_state, estimate), y = 
   )
 
 ```
-
+The dataset has `r nrow(homicide_data)` observations and `r ncol(homicide_data)` variables. The variables include `r colnames(homicide_data)`.
 
 
