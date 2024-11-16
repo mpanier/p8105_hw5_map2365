@@ -125,6 +125,7 @@ ggplot(results_df, aes(x = mu)) +
   guides(color = guide_legend(title = "Estimate Type"))
 
 ```
+*The average mu across all samples closely follows the true mu which suggests an unbiased estimate. However, the average mu for only the rejected samples is higher than the true mu and this is especially evident at smaller effect sizes. This bias likely results because only samples with more extreme mu values are likely to reject the null, skewing the average upward.*
 
 
 #Problem 3 
