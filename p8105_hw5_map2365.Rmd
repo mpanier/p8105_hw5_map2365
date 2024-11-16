@@ -10,7 +10,7 @@ library(ggplot2)
 library(tidyverse)
 ```
 
-#Problem #1
+# Problem 1
 
 *function that checks for duplicate birthdays*
 ```{r}
@@ -42,9 +42,10 @@ plot(group_sizes, probabilities, type = "b",
      main = "Probability of At Least Two People Sharing a Birthday",
      pch = 19, col = "blue")
 ```
+
 *based on the plot, we can see that the probability of two people sharing a birthday increases as the size of the group increases. In fact, when the group size reaches 50, there is nearly the probability of 2 people sharing a birthday is nearly 100%*
 
-#Problem 2
+# Problem 2
 ```{r}
 # Set simulation parameters
 n <- 30              # Sample size
@@ -106,6 +107,7 @@ ggplot(results_df, aes(x = mu, y = power)) +
   ) +
   theme_minimal()
 ```
+
 *The plot of power (proportion of times the null was rejected) vs. true mean shows that power tends to increases with effect size (mu). As mu moves further from zero, it becomes more likely that we correctly reject the null hypothesis. This suggests that larger effect sizes make it easier to detect a significant result.*
 
 *Plotting average estimate of mu_hat vs. true mean (mu)*
@@ -125,11 +127,70 @@ ggplot(results_df, aes(x = mu)) +
   guides(color = guide_legend(title = "Estimate Type"))
 
 ```
+
 *The average mu across all samples closely follows the true mu which suggests an unbiased estimate. However, the average mu for only the rejected samples is higher than the true mu and this is especially evident at smaller effect sizes. This bias likely results because only samples with more extreme mu values are likely to reject the null, skewing the average upward.*
 
-
-#Problem 3 
+# Problem 3
 ```{r}
+# Importing and cleaning data
+url <- "https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"
+if (!dir.exists("data")) {
+  dir.create("data")
+}
+download.file(url, destfile = "data/homicide_data.csv") 
+
+homicide_data <- readr::read_csv("data/homicide_data.csv") %>%
+  janitor::clean_names()
+
+# created city_state and summarized data
+city_summary <- homicide_data %>%
+  dplyr::mutate(city_state = paste(city, state, sep = ", ")) %>%
+  dplyr::group_by(city_state) %>%
+  dplyr::summarize(
+    total_homicides = dplyr::n(),
+    unsolved_homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest")),
+    .groups = "drop"  # Remove group structure after summarizing
+  )
+
+# for Baltimore, MD
+baltimore_data <- city_summary %>% dplyr::filter(city_state == "Baltimore, MD")
+
+baltimore_prop <- prop.test(
+  baltimore_data$unsolved_homicides,
+  baltimore_data$total_homicides
+) %>%
+  broom::tidy() %>%
+  dplyr::select(estimate, conf.low, conf.high)  # Extract estimate and confidence intervals
+
+# for all cities
+city_props <- city_summary %>%
+  dplyr::mutate(
+    test_results = purrr::map2(
+      unsolved_homicides,
+      total_homicides,
+      ~ prop.test(.x, .y) %>% broom::tidy()
+    )
+  ) %>%
+  tidyr::unnest(test_results) %>%
+  dplyr::select(city_state, estimate, conf.low, conf.high)  # Keep only relevant columns
+
+# Plot estimates and confidence intervals
+ggplot2::ggplot(city_props, ggplot2::aes(x = reorder(city_state, estimate), y = estimate)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = conf.low, ymax = conf.high), width = 0.3) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(
+    title = "Proportion of Unsolved Homicides by City",
+    x = "City, State",
+    y = "Proportion of Unsolved Homicides"
+  ) +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(
+    axis.text.y = ggplot2::element_text(size = 6),  
+    axis.text.x = ggplot2::element_text(size = 10), 
+    axis.title = ggplot2::element_text(size = 12),  
+    plot.title = ggplot2::element_text(size = 14, face = "bold")  
+  )
 
 ```
 
