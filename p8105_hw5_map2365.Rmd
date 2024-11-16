@@ -106,6 +106,7 @@ ggplot(results_df, aes(x = mu, y = power)) +
   ) +
   theme_minimal()
 ```
+*The plot of power (proportion of times the null was rejected) vs. true mean shows that power tends to increases with effect size (mu). As mu moves further from zero, it becomes more likely that we correctly reject the null hypothesis. This suggests that larger effect sizes make it easier to detect a significant result.*
 
 *Plotting average estimate of mu_hat vs. true mean (mu)*
 ```{r}
@@ -125,6 +126,11 @@ ggplot(results_df, aes(x = mu)) +
 
 ```
 
+
+#Problem 3 
+```{r}
+
+```
 
 
 
